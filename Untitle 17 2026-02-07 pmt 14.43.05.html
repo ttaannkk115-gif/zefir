@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Зефирные Букеты — Нежность в каждом кусочке</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #f8bbd0;
+            --dark-pink: #e91e63;
+            --soft-white: #fff5f8;
+            --text-color: #4a4a4a;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--soft-white);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: var(--dark-pink);
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #888;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Галерея */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .item-info {
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Кнопки */
+        .btn-order {
+            display: inline-block;
+            background-color: var(--dark-pink);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-order:hover {
+            background-color: #c2185b;
+        }
+
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25d366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            font-size: 30px;
+            text-decoration: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 60px 20px;
+            background: #fce4ec;
+            margin-top: 50px;
+        }
+
+        .contact-phone {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark-pink);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .gallery { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .gallery-item img { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <p class="subtitle">Букеты, которые можно съесть</p>
+    <h1>Зефирные Букеты</h1>
+</header>
+
+<div class="container">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2>Наши работы</h2>
+        <p>Натуральный состав, ручная работа и невероятная красота</p>
+    </div>
+
+    <div class="gallery">
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/LzNfQzB/image1.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20букет%20с%20фото%201" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/x7R4sMh/image2.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20букет%20с%20фото%202" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/hZz0V5P/image3.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20букет%20с%20фото%203" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/zXp9F3X/image4.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/vYm6F6G/image5.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/mBf7yvM/image6.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/0XjVfR5/image7.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/qN3TjVw/image8.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/7XvXfS0/image9.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849" class="btn-order">Заказать</a>
+            </div>
+        </div>
+
+        <div class="gallery-item">
+            <img src="https://i.ibb.co/1qzVfQ1/image10.png" alt="Зефирный букет">
+            <div class="item-info">
+                <a href="https://wa.me/79894596849" class="btn-order">Заказать</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <h3>Сделать заказ в WhatsApp</h3>
+    <a href="https://wa.me/79894596849" class="contact-phone">+7 (989) 459-68-49</a>
+    <p>© 2024 Зефирные Букеты — Ручная работа</p>
+</footer>
+
+<a href="https://wa.me/79894596849" class="whatsapp-float" target="_blank">
+    <svg width="35" height="35" fill="white" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.89 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.743-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+</a>
+
+</body>
+</html>
