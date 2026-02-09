@@ -8,21 +8,18 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
-        * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: #f0f2f5; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        #auth-form { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 320px; margin-top: 60px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .login-btn { background: #222; color: white; margin-top: 10px; }
-        .reg-link { background: none; color: #007bff; font-size: 13px; margin-top: 15px; text-decoration: underline; border: none; cursor: pointer; }
-        #app { display: none; width: 100%; max-width: 800px; }
-        .matrix { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
-        @media (min-width: 600px) { .matrix { grid-template-columns: 1fr 1fr; } }
-        .quadrant { background: white; padding: 15px; border-radius: 15px; border-top: 6px solid #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .item { background: #f9f9f9; padding: 10px; margin-top: 8px; border-radius: 10px; position: relative; border: 1px solid #eee; font-size: 14px; word-break: break-all; }
-        .del { position: absolute; right: 8px; top: 8px; color: #ccc; border: none; background: none; cursor: pointer; font-size: 18px; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 100; align-items: center; justify-content: center; font-weight: bold; }
-        .file-link { display: inline-block; margin-top: 5px; color: #007bff; text-decoration: none; font-size: 12px; font-weight: bold; }
+        * { box-sizing: border-box; font-family: sans-serif; }
+        body { background: #121212; color: white; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        #auth-form { background: #1e1e1e; padding: 25px; border-radius: 20px; width: 100%; max-width: 320px; margin-top: 50px; text-align: center; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 10px; background: #2a2a2a; color: white; font-size: 16px; outline: none; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        .login-btn { background: #ffffff; color: #000; }
+        .reg-link { background: none; color: #007bff; font-size: 13px; text-decoration: underline; margin-top: 15px; }
+        #app { display: none; width: 100%; max-width: 500px; }
+        .quadrant { background: #1e1e1e; padding: 15px; border-radius: 15px; margin-top: 15px; border-left: 5px solid #ff4d4d; }
+        .item { background: #2a2a2a; padding: 10px; margin-top: 8px; border-radius: 8px; position: relative; border: 1px solid #333; font-size: 14px; }
+        .del { position: absolute; right: 8px; top: 8px; color: #ff4d4d; background: none; border: none; cursor: pointer; font-weight: bold; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -31,52 +28,35 @@
 
 <div id="auth-form">
     <h2 style="margin-top:0">Master Cloud</h2>
-    <input type="text" id="user-login" placeholder="Логин (например: Gazik115)">
+    <input type="text" id="user-login" placeholder="Логин (напр: Gazik115)">
     <input type="password" id="user-pass" placeholder="Пароль">
     <button class="btn login-btn" onclick="go('login')">ВОЙТИ</button>
-    <button class="btn reg-link" onclick="go('reg')">У меня нет аккаунта, создать</button>
+    <button class="btn reg-link" onclick="go('reg')">Нет аккаунта? Создать</button>
 </div>
 
 <div id="app">
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-        <b id="user-name">☁️ Моё Облако</b>
-        <button onclick="firebase.auth().signOut()" style="border:none; background:none; color:red; cursor:pointer; font-weight:bold;">Выход</button>
+        <b style="color: #007bff;">☁️ Твое Облако</b>
+        <button onclick="firebase.auth().signOut()" style="border:none; background:none; color:#ff4d4d; cursor:pointer; font-weight:bold;">Выход</button>
     </div>
 
-    <div class="matrix">
-        <div class="quadrant" style="border-color: #ff4d4d;">
-            <h4 style="margin:0 0 10px 0">🔥 СРОЧНО</h4>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="in1" placeholder="Дело..." style="margin:0">
-                <button style="border-radius:10px; border:1px solid #ddd; background:#eee;" onclick="document.getElementById('f1').click()">📎</button>
-                <input type="file" id="f1" style="display:none" onchange="up(1)">
-                <button class="login-btn" style="width:40px; margin:0; border-radius:10px;" onclick="add(1)">+</button>
-            </div>
-            <div id="l1"></div>
+    <div class="quadrant">
+        <h4 style="margin:0 0 10px 0; color: #ff4d4d;">🔥 СРОЧНО / ВАЖНО</h4>
+        <div style="display:flex; gap:5px;">
+            <input type="text" id="in1" placeholder="Новая запись..." style="margin:0">
+            <button class="login-btn" style="width:45px; margin:0; border-radius:10px;" onclick="add()">+</button>
         </div>
-
-        <div class="quadrant" style="border-color: #007bff;">
-            <h4 style="margin:0 0 10px 0">📅 ВАЖНО</h4>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="in2" placeholder="Заметка..." style="margin:0">
-                <button style="border-radius:10px; border:1px solid #ddd; background:#eee;" onclick="document.getElementById('f2').click()">📎</button>
-                <input type="file" id="f2" style="display:none" onchange="up(2)">
-                <button class="login-btn" style="width:40px; margin:0; border-radius:10px;" onclick="add(2)">+</button>
-            </div>
-            <div id="l2"></div>
-        </div>
+        <div id="list"></div>
     </div>
 </div>
 
 <script>
-    // ТВОИ ДАННЫЕ ИЗ СКРИНШОТА
+    // ДАННЫЕ С ТВОИХ СКРИНШОТОВ (ФИНАЛЬНЫЕ)
     const firebaseConfig = {
         apiKey: "AIzaSyAm7l3kLNaXW90TyN9gFS2pwfdseimErdc",
         authDomain: "fail-21187.firebaseapp.com",
         databaseURL: "https://fail-21187-default-rtdb.firebaseio.com",
         projectId: "fail-21187",
-        storageBucket: "fail-21187.appspot.com",
-        messagingSenderId: "621043286513",
         appId: "1:621043286513:web:dc826eaa4ddebb5cc14450"
     };
 
@@ -87,10 +67,7 @@
     auth.onAuthStateChanged(user => {
         document.getElementById('auth-form').style.display = user ? 'none' : 'block';
         document.getElementById('app').style.display = user ? 'block' : 'none';
-        if(user) {
-            document.getElementById('user-name').innerText = "Привет, " + user.email.split('@')[0];
-            sync(user.uid);
-        }
+        if(user) sync(user.uid);
     });
 
     async function go(mode) {
@@ -98,53 +75,44 @@
         const pass = document.getElementById('user-pass').value;
         if(!login || !pass) return alert("Заполни поля!");
         
-        const email = login.includes('@') ? login : login + "@master.ru";
+        // Превращаем логин в почту автоматически
+        const email = login.includes('@') ? login : login + "@m.ru";
 
         try {
             if(mode === 'reg') {
                 await auth.createUserWithEmailAndPassword(email, pass);
-                alert("Аккаунт создан! Нажми 'Войти'");
+                alert("Аккаунт создан!");
             } else {
                 await auth.signInWithEmailAndPassword(email, pass);
             }
-        } catch(e) { alert("Ошибка: " + e.message); }
+        } catch(e) { 
+            alert("Ошибка: " + e.message); 
+            console.error(e);
+        }
     }
 
     function sync(uid) {
         db.ref('users/' + uid).on('value', snap => {
-            [1,2].forEach(i => document.getElementById('l'+i).innerHTML = '');
+            const list = document.getElementById('list');
+            list.innerHTML = '';
             snap.forEach(child => {
                 const val = child.val();
                 const div = document.createElement('div');
                 div.className = 'item';
                 div.innerHTML = `
-                    <div>${val.f ? '📄' : '📌'} ${val.t}</div>
+                    <span>📌 ${val.t}</span>
                     <button class="del" onclick="db.ref('users/${uid}/${child.key}').remove()">✕</button>
-                    ${val.f ? `<a href="${val.f}" download="${val.t}" class="file-link">СКАЧАТЬ</a>` : ''}
                 `;
-                document.getElementById('l'+val.q).prepend(div);
+                list.prepend(div);
             });
         });
     }
 
-    async function add(q) {
-        const text = document.getElementById('in'+q).value;
+    async function add() {
+        const text = document.getElementById('in1').value;
         if(!text) return;
-        await db.ref('users/' + auth.currentUser.uid).push({ q, t: text });
-        document.getElementById('in'+q).value = '';
-    }
-
-    function up(q) {
-        const file = document.getElementById('f'+q).files[0];
-        if(!file) return;
-        document.getElementById('loader').style.display = 'flex';
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            await db.ref('users/' + auth.currentUser.uid).push({ q, t: file.name, f: e.target.result });
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('f'+q).value = '';
-        };
-        reader.readAsDataURL(file);
+        await db.ref('users/' + auth.currentUser.uid).push({ t: text });
+        document.getElementById('in1').value = '';
     }
 </script>
 </body>
