@@ -3,72 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Private Matrix</title>
+    <title>Master Matrix Private</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
-        body { background: #f0f4f8; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        
-        /* Стили входа */
-        #auth-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 40px; text-align: center; }
-        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
-        .auth-btn { width: 100%; padding: 14px; background: #222; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* Матрица */
-        #main-content { display: none; width: 100%; max-width: 850px; }
+        body { background: #f4f7f9; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        #auth-ui, #app-ui { width: 100%; max-width: 400px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-top: 20px; }
+        #app-ui { display: none; max-width: 800px; }
+        .auth-input, .task-input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .btn-main { background: #222; color: white; }
         .matrix { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        @media (min-width: 768px) { .matrix { grid-template-columns: 1fr 1fr; } }
-        
-        .quadrant { background: white; padding: 15px; border-radius: 18px; border-top: 6px solid; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .q1 { border-color: #ff4d4d; } .q2 { border-color: #007bff; }
-        .q3 { border-color: #ffc107; } .q4 { border-color: #28a745; }
-
-        .header-ui { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; width: 100%; }
-        .input-group { display: flex; gap: 5px; margin-bottom: 15px; }
-        .item { background: #fdfdfd; padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #f0f0f0; position: relative; }
-        .del-btn { position: absolute; right: 10px; top: 10px; color: #ccc; border: none; background: none; font-size: 1.2rem; cursor: pointer; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 100; align-items: center; justify-content: center; font-weight: bold; }
+        @media (min-width: 600px) { .matrix { grid-template-columns: 1fr 1fr; } }
+        .quadrant { border-top: 5px solid #333; padding: 10px; background: #fafafa; border-radius: 10px; }
+        .item { background: white; padding: 10px; margin-top: 10px; border-radius: 8px; position: relative; border: 1px solid #eee; }
+        .del { position: absolute; right: 5px; top: 5px; color: #ff4d4d; border: none; background: none; cursor: pointer; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 100; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
 
-<div id="loader">⚙️ Облачная обработка...</div>
+<div id="loader">⏳ Обработка в облаке...</div>
 
-<div id="auth-container">
-    <h2>Личное Облако</h2>
-    <input type="email" id="email" class="auth-input" placeholder="Ваш Email">
-    <input type="password" id="password" class="auth-input" placeholder="Ваш Пароль">
-    <button class="auth-btn" onclick="handleAuth('login')">Войти</button>
-    <button class="auth-btn" style="background: #888;" onclick="handleAuth('register')">Создать аккаунт</button>
+<div id="auth-ui">
+    <h2 style="text-align: center;">Вход в Облако</h2>
+    <input type="email" id="email" class="auth-input" placeholder="Email">
+    <input type="password" id="pass" class="auth-input" placeholder="Пароль">
+    <button class="btn btn-main" onclick="authAction('login')">Войти</button>
+    <button class="btn" style="background:#eee" onclick="authAction('reg')">Создать аккаунт</button>
 </div>
 
-<div id="main-content">
-    <div class="header-ui">
-        <b>Master Matrix Online</b>
-        <button onclick="firebase.auth().signOut()" style="border:none; color:red; background:none; cursor:pointer;">Выйти</button>
+<div id="app-ui">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <b>Личная Матрица</b>
+        <button onclick="firebase.auth().signOut()" style="border:none; color:red; background:none; cursor:pointer;">Выход</button>
     </div>
-
-    <div class="matrix">
-        <div class="quadrant q1">
+    <div class="matrix" style="margin-top: 20px;">
+        <div class="quadrant" style="border-color: #ff4d4d;">
             <h4>🔥 Срочно</h4>
-            <div class="input-group">
-                <input type="text" id="in1" placeholder="Дело...">
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="in1" class="task-input" placeholder="Что сделать?" style="margin:0">
                 <button onclick="document.getElementById('f1').click()">📎</button>
-                <input type="file" id="f1" style="display:none" onchange="uploadFile(1)">
-                <button onclick="addTask(1)">+</button>
+                <input type="file" id="f1" style="display:none" onchange="upFile(1)">
+                <button class="btn-main" style="width: 40px; margin: 0; border-radius: 8px;" onclick="addText(1)">+</button>
             </div>
             <div id="l1"></div>
         </div>
-
-        <div class="quadrant q2">
+        <div class="quadrant" style="border-color: #007bff;">
             <h4>📅 Важно</h4>
-            <div class="input-group">
-                <input type="text" id="in2" placeholder="Планируй...">
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="in2" class="task-input" placeholder="Запланировать..." style="margin:0">
                 <button onclick="document.getElementById('f2').click()">📎</button>
-                <input type="file" id="f2" style="display:none" onchange="uploadFile(2)">
-                <button onclick="addTask(2)">+</button>
+                <input type="file" id="f2" style="display:none" onchange="upFile(2)">
+                <button class="btn-main" style="width: 40px; margin: 0; border-radius: 8px;" onclick="addText(2)">+</button>
             </div>
             <div id="l2"></div>
         </div>
@@ -76,7 +65,7 @@
 </div>
 
 <script>
-    // ДАННЫЕ С ТВОИХ СКРИНШОТОВ
+    // ДАННЫЕ С ВАШИХ СКРИНШОТОВ
     const firebaseConfig = {
         apiKey: "AIzaSyAm7l3kLNaXW90TyN9gFS2pwfdseimErdc",
         authDomain: "fail-21187.firebaseapp.com",
@@ -90,58 +79,53 @@
     const db = firebase.database();
 
     auth.onAuthStateChanged(user => {
-        if (user) {
-            document.getElementById('auth-container').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-            sync(user.uid);
-        } else {
-            document.getElementById('auth-container').style.display = 'block';
-            document.getElementById('main-content').style.display = 'none';
-        }
+        document.getElementById('auth-ui').style.display = user ? 'none' : 'block';
+        document.getElementById('app-ui').style.display = user ? 'block' : 'none';
+        if(user) sync(user.uid);
     });
 
-    async function handleAuth(mode) {
+    async function authAction(type) {
         const e = document.getElementById('email').value;
-        const p = document.getElementById('password').value;
+        const p = document.getElementById('pass').value;
         try {
-            if(mode === 'register') await auth.createUserWithEmailAndPassword(e, p);
+            if(type === 'reg') await auth.createUserWithEmailAndPassword(e, p);
             else await auth.signInWithEmailAndPassword(e, p);
         } catch(err) { alert("Ошибка: " + err.message); }
     }
 
     function sync(uid) {
         db.ref('users/' + uid).on('value', snap => {
-            [1,2].forEach(i => document.getElementById('l'+i).innerHTML = '');
+            [1, 2].forEach(i => document.getElementById('l'+i).innerHTML = '');
             snap.forEach(child => {
                 const item = child.val();
                 const div = document.createElement('div');
                 div.className = 'item';
                 div.innerHTML = `
-                    <div>${item.type==='file'?'📄':'📌'} <b>${item.text}</b></div>
-                    <button class="del-btn" onclick="db.ref('users/${uid}/${child.key}').remove()">✕</button>
-                    ${item.data ? `<a href="${item.data}" download="${item.text}" style="font-size:12px; color:#007bff; text-decoration:none; font-weight:bold;">СКАЧАТЬ</a>` : ''}
+                    <div>${item.type==='file'?'📄':'📌'} ${item.text}</div>
+                    <button class="del" onclick="db.ref('users/${uid}/${child.key}').remove()">✕</button>
+                    ${item.fileData ? `<a href="${item.fileData}" download="${item.text}" style="font-size:12px; color:blue;">Скачать</a>` : ''}
                 `;
                 document.getElementById('l'+item.q).prepend(div);
             });
         });
     }
 
-    async function addTask(q) {
-        const val = document.getElementById('in'+q).value;
-        if(val) {
-            await db.ref('users/' + auth.currentUser.uid).push({ q, text: val, type: 'text' });
+    async function addText(q) {
+        const txt = document.getElementById('in'+q).value;
+        if(txt) {
+            await db.ref('users/' + auth.currentUser.uid).push({ q, text: txt, type: 'text' });
             document.getElementById('in'+q).value = '';
         }
     }
 
-    function uploadFile(q) {
+    function upFile(q) {
         const file = document.getElementById('f'+q).files[0];
         if(!file) return;
         const reader = new FileReader();
         document.getElementById('loader').style.display = 'flex';
         reader.onload = async (e) => {
             await db.ref('users/' + auth.currentUser.uid).push({
-                q, text: file.name, data: e.target.result, type: 'file'
+                q, text: file.name, fileData: e.target.result, type: 'file'
             });
             document.getElementById('loader').style.display = 'none';
         };
