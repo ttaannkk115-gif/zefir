@@ -3,215 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Матрица Эйзенхауэра Mobile</title>
+    <title>Master Private Matrix</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
-        * { box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: #f8f9fa; 
-            margin: 0; 
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        h1 { font-size: 1.5rem; margin: 10px 0 5px; color: #222; }
-        p { font-size: 0.9rem; color: #666; margin-bottom: 15px; text-align: center; }
-
-        /* Адаптивная сетка: 1 колонка на мобилках, 2 на десктопе */
-        .matrix { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 12px; 
-            width: 100%; 
-            max-width: 500px; 
-        }
-
-        @media (min-width: 768px) {
-            .matrix { grid-template-columns: 1fr 1fr; max-width: 900px; }
-        }
-
-        .quadrant { 
-            padding: 12px; 
-            border-radius: 12px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-            display: flex; 
-            flex-direction: column;
-            min-height: 200px;
-        }
-
-        .q1 { background: #fff1f1; border-left: 6px solid #ff4d4d; }
-        .q2 { background: #f0f7ff; border-left: 6px solid #007bff; }
-        .q3 { background: #fff9e6; border-left: 6px solid #ffc107; }
-        .q4 { background: #f2faf3; border-left: 6px solid #28a745; }
-
-        h3 { margin: 0 0 10px 0; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
-
-        /* Поле ввода и кнопки */
-        .input-group { 
-            display: flex; 
-            gap: 8px; 
-            margin-bottom: 10px; 
-            background: white;
-            padding: 4px;
-            border-radius: 8px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        input[type="text"] { 
-            flex-grow: 1; 
-            border: none; 
-            padding: 10px; 
-            font-size: 16px; /* Предотвращает зум на iOS */
-            outline: none;
-            background: transparent;
-        }
-
-        .btn { 
-            border: none; 
-            border-radius: 6px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            transition: active 0.1s;
-            touch-action: manipulation;
-        }
+        * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        body { background: #f0f4f8; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .btn:active { transform: scale(0.95); opacity: 0.7; }
+        /* Стили входа */
+        #auth-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 40px; text-align: center; }
+        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
+        .auth-btn { width: 100%; padding: 14px; background: #222; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        /* Матрица */
+        #main-content { display: none; width: 100%; max-width: 850px; }
+        .matrix { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 768px) { .matrix { grid-template-columns: 1fr 1fr; } }
+        
+        .quadrant { background: white; padding: 15px; border-radius: 18px; border-top: 6px solid; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .q1 { border-color: #ff4d4d; } .q2 { border-color: #007bff; }
+        .q3 { border-color: #ffc107; } .q4 { border-color: #28a745; }
 
-        .attach-btn { background: #e9ecef; color: #495057; width: 40px; font-size: 1.2rem; }
-        .add-btn { background: #333; color: white; width: 40px; font-size: 1.4rem; }
-
-        /* Список элементов */
-        .task-list { list-style: none; padding: 0; margin: 0; }
-        .item { 
-            background: white; 
-            margin-bottom: 8px; 
-            padding: 12px; 
-            border-radius: 8px; 
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .item-content { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .item-text { font-size: 0.95rem; color: #333; word-break: break-word; }
-
-        .item-actions { 
-            display: flex; 
-            gap: 15px; 
-            margin-top: 8px; 
-            padding-top: 8px; 
-            border-top: 1px solid #f0f0f0; 
-        }
-
-        .action-link { font-size: 0.8rem; text-decoration: none; color: #007bff; font-weight: 600; }
-        .del-icon { color: #ff4d4d; font-size: 1.1rem; padding: 5px; cursor: pointer; }
-
-        .hidden-input { display: none; }
+        .header-ui { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; width: 100%; }
+        .input-group { display: flex; gap: 5px; margin-bottom: 15px; }
+        .item { background: #fdfdfd; padding: 12px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #f0f0f0; position: relative; }
+        .del-btn { position: absolute; right: 10px; top: 10px; color: #ccc; border: none; background: none; font-size: 1.2rem; cursor: pointer; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 100; align-items: center; justify-content: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>Матрица Master</h1>
-    <p>Нажми 📎 чтобы добавить файл</p>
+<div id="loader">⚙️ Облачная обработка...</div>
+
+<div id="auth-container">
+    <h2>Личное Облако</h2>
+    <input type="email" id="email" class="auth-input" placeholder="Ваш Email">
+    <input type="password" id="password" class="auth-input" placeholder="Ваш Пароль">
+    <button class="auth-btn" onclick="handleAuth('login')">Войти</button>
+    <button class="auth-btn" style="background: #888;" onclick="handleAuth('register')">Создать аккаунт</button>
+</div>
+
+<div id="main-content">
+    <div class="header-ui">
+        <b>Master Matrix Online</b>
+        <button onclick="firebase.auth().signOut()" style="border:none; color:red; background:none; cursor:pointer;">Выйти</button>
+    </div>
 
     <div class="matrix">
         <div class="quadrant q1">
-            <h3>🔥 Срочно / Важно</h3>
+            <h4>🔥 Срочно</h4>
             <div class="input-group">
-                <input type="text" id="input1" placeholder="Задание...">
-                <button class="btn attach-btn" onclick="triggerFile(1)">📎</button>
-                <input type="file" id="file1" class="hidden-input" onchange="addFile(1)">
-                <button class="btn add-btn" onclick="addTask(1)">+</button>
+                <input type="text" id="in1" placeholder="Дело...">
+                <button onclick="document.getElementById('f1').click()">📎</button>
+                <input type="file" id="f1" style="display:none" onchange="uploadFile(1)">
+                <button onclick="addTask(1)">+</button>
             </div>
-            <ul class="task-list" id="list1"></ul>
+            <div id="l1"></div>
         </div>
 
         <div class="quadrant q2">
-            <h3>📅 Планируй</h3>
+            <h4>📅 Важно</h4>
             <div class="input-group">
-                <input type="text" id="input2" placeholder="Задание...">
-                <button class="btn attach-btn" onclick="triggerFile(2)">📎</button>
-                <input type="file" id="file2" class="hidden-input" onchange="addFile(2)">
-                <button class="btn add-btn" onclick="addTask(2)">+</button>
+                <input type="text" id="in2" placeholder="Планируй...">
+                <button onclick="document.getElementById('f2').click()">📎</button>
+                <input type="file" id="f2" style="display:none" onchange="uploadFile(2)">
+                <button onclick="addTask(2)">+</button>
             </div>
-            <ul class="task-list" id="list2"></ul>
-        </div>
-
-        <div class="quadrant q3">
-            <h3>⚡ Делегируй</h3>
-            <div class="input-group">
-                <input type="text" id="input3" placeholder="Задание...">
-                <button class="btn attach-btn" onclick="triggerFile(3)">📎</button>
-                <input type="file" id="file3" class="hidden-input" onchange="addFile(3)">
-                <button class="btn add-btn" onclick="addTask(3)">+</button>
-            </div>
-            <ul class="task-list" id="list3"></ul>
-        </div>
-
-        <div class="quadrant q4">
-            <h3>🌱 Отложи</h3>
-            <div class="input-group">
-                <input type="text" id="input4" placeholder="Задание...">
-                <button class="btn attach-btn" onclick="triggerFile(4)">📎</button>
-                <input type="file" id="file4" class="hidden-input" onchange="addFile(4)">
-                <button class="btn add-btn" onclick="addTask(4)">+</button>
-            </div>
-            <ul class="task-list" id="list4"></ul>
+            <div id="l2"></div>
         </div>
     </div>
+</div>
 
-    <script>
-        function triggerFile(n) { document.getElementById(`file${n}`).click(); }
+<script>
+    // ДАННЫЕ С ТВОИХ СКРИНШОТОВ
+    const firebaseConfig = {
+        apiKey: "AIzaSyAm7l3kLNaXW90TyN9gFS2pwfdseimErdc",
+        authDomain: "fail-21187.firebaseapp.com",
+        databaseURL: "https://fail-21187-default-rtdb.firebaseio.com",
+        projectId: "fail-21187",
+        appId: "1:621043286513:web:dc826eaa4ddebb5cc14450"
+    };
 
-        function addTask(n) {
-            const input = document.getElementById(`input${n}`);
-            if (input.value.trim()) {
-                createItem(n, input.value, null);
-                input.value = "";
-            }
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            sync(user.uid);
+        } else {
+            document.getElementById('auth-container').style.display = 'block';
+            document.getElementById('main-content').style.display = 'none';
         }
+    });
 
-        function addFile(n) {
-            const file = document.getElementById(`file${n}`).files[0];
-            if (file) {
-                createItem(n, file.name, file);
-                document.getElementById(`file${n}`).value = "";
-            }
+    async function handleAuth(mode) {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
+        try {
+            if(mode === 'register') await auth.createUserWithEmailAndPassword(e, p);
+            else await auth.signInWithEmailAndPassword(e, p);
+        } catch(err) { alert("Ошибка: " + err.message); }
+    }
+
+    function sync(uid) {
+        db.ref('users/' + uid).on('value', snap => {
+            [1,2].forEach(i => document.getElementById('l'+i).innerHTML = '');
+            snap.forEach(child => {
+                const item = child.val();
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div>${item.type==='file'?'📄':'📌'} <b>${item.text}</b></div>
+                    <button class="del-btn" onclick="db.ref('users/${uid}/${child.key}').remove()">✕</button>
+                    ${item.data ? `<a href="${item.data}" download="${item.text}" style="font-size:12px; color:#007bff; text-decoration:none; font-weight:bold;">СКАЧАТЬ</a>` : ''}
+                `;
+                document.getElementById('l'+item.q).prepend(div);
+            });
+        });
+    }
+
+    async function addTask(q) {
+        const val = document.getElementById('in'+q).value;
+        if(val) {
+            await db.ref('users/' + auth.currentUser.uid).push({ q, text: val, type: 'text' });
+            document.getElementById('in'+q).value = '';
         }
+    }
 
-        function createItem(n, text, file) {
-            const list = document.getElementById(`list${n}`);
-            const li = document.createElement('li');
-            li.className = 'item';
-            
-            let actions = '';
-            if (file) {
-                const url = URL.createObjectURL(file);
-                actions = `
-                    <div class="item-actions">
-                        <a href="${url}" download="${file.name}" class="action-link">СКАЧАТЬ</a>
-                        <span class="action-link" onclick="shareContent('${text}')">ПОДЕЛИТЬСЯ</span>
-                    </div>`;
-            }
-
-            li.innerHTML = `
-                <div class="item-content">
-                    <span class="item-text">${file ? '📄' : '✅'} ${text}</span>
-                    <span class="del-icon" onclick="this.closest('.item').remove()">✕</span>
-                </div>
-                ${actions}
-            `;
-            list.prepend(li); // Добавляем новые задачи вверх
-        }
-
-        function shareContent(name) {
-            if (navigator.share) {
-                navigator.share({ title: 'Файл из матрицы', text: name, url: window.location.href });
-            } else {
-                alert('Ссылка на ' + name + ' скопирована!');
-            }
-        }
-    </script>
+    function uploadFile(q) {
+        const file = document.getElementById('f'+q).files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        document.getElementById('loader').style.display = 'flex';
+        reader.onload = async (e) => {
+            await db.ref('users/' + auth.currentUser.uid).push({
+                q, text: file.name, data: e.target.result, type: 'file'
+            });
+            document.getElementById('loader').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
 </body>
 </html>
