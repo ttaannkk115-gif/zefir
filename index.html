@@ -3,67 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Cloud Final</title>
+    <title>Master Eisenhower Cloud</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .box { background: #111; padding: 30px; border-radius: 20px; width: 90%; max-width: 340px; text-align: center; border: 1px solid #333; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #fff; color: #000; font-weight: bold; cursor: pointer; }
-        #err { color: #ff4d4d; font-size: 12px; margin-top: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
+        .matrix { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 900px; }
+        @media (min-width: 768px) { .matrix { grid-template-columns: 1fr 1fr; } }
+        .quadrant { padding: 15px; border-radius: 12px; display: flex; flex-direction: column; min-height: 200px; background: #1e1e1e; border-top: 5px solid; }
+        .q1 { border-color: #ff4d4d; } .q2 { border-color: #007bff; }
+        .q3 { border-color: #ffc107; } .q4 { border-color: #28a745; }
+        .input-group { display: flex; gap: 5px; margin-bottom: 10px; }
+        input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: white; outline: none; }
+        .btn { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; padding: 10px; }
+        .add-btn { background: #fff; color: #000; }
+        .item { background: #2a2a2a; margin-bottom: 8px; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; }
+        .delete-btn { color: #ff4d4d; background: none; border: none; cursor: pointer; font-size: 18px; }
+        .file-link { display: inline-block; color: #007bff; text-decoration: none; margin-top: 5px; font-size: 0.9rem; font-weight: bold; }
+        #status { font-size: 12px; color: #00ff00; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-<div id="auth" class="box">
-    <h2>Master Cloud</h2>
-    <input type="text" id="l" placeholder="Логин">
-    <input type="password" id="p" placeholder="Пароль">
-    <button onclick="run('in')">ВОЙТИ</button>
-    <button onclick="run('up')" style="background:none; color:#777; font-size:12px; text-decoration:underline;">Регистрация</button>
-    <div id="err"></div>
-</div>
+    <h2 style="margin: 10px 0;">☁️ Master Eisenhower Cloud</h2>
+    <div id="status">● Облако онлайн (Без пароля)</div>
 
-<div id="main" style="display:none; text-align:center;">
-    <h1>ДОСТУП ОТКРЫТ ✅</h1>
-    <button onclick="firebase.auth().signOut()">Выход</button>
-</div>
+    <div class="matrix">
+        <div class="quadrant q1">
+            <h3 style="color:#ff4d4d; margin:0 0 10px 0;">🔥 Срочно / Важно</h3>
+            <div class="input-group">
+                <input type="text" id="in1" placeholder="Заметка или файл...">
+                <button class="btn" onclick="document.getElementById('f1').click()">📎</button>
+                <input type="file" id="f1" style="display:none" onchange="up(1)">
+                <button class="btn add-btn" onclick="add(1)">+</button>
+            </div>
+            <div id="list1"></div>
+        </div>
+
+        <div class="quadrant q2">
+            <h3 style="color:#007bff; margin:0 0 10px 0;">📅 Важно / Несрочно</h3>
+            <div class="input-group">
+                <input type="text" id="in2" placeholder="Заметка...">
+                <button class="btn" onclick="document.getElementById('f2').click()">📎</button>
+                <input type="file" id="f2" style="display:none" onchange="up(2)">
+                <button class="btn add-btn" onclick="add(2)">+</button>
+            </div>
+            <div id="list2"></div>
+        </div>
+
+        <div class="quadrant q3">
+            <h3 style="color:#ffc107; margin:0 0 10px 0;">⚡ Срочно / Неважно</h3>
+            <div class="input-group">
+                <input type="text" id="in3" placeholder="Заметка...">
+                <button class="btn" onclick="document.getElementById('f3').click()">📎</button>
+                <input type="file" id="f3" style="display:none" onchange="up(3)">
+                <button class="btn add-btn" onclick="add(3)">+</button>
+            </div>
+            <div id="list3"></div>
+        </div>
+
+        <div class="quadrant q4">
+            <h3 style="color:#28a745; margin:0 0 10px 0;">🌱 Неважно / Несрочно</h3>
+            <div class="input-group">
+                <input type="text" id="in4" placeholder="Заметка...">
+                <button class="btn" onclick="document.getElementById('f4').click()">📎</button>
+                <input type="file" id="f4" style="display:none" onchange="up(4)">
+                <button class="btn add-btn" onclick="add(4)">+</button>
+            </div>
+            <div id="list4"></div>
+        </div>
+    </div>
 
 <script>
-    const config = {
+    // Твои настройки Firebase
+    const firebaseConfig = {
         apiKey: "AIzaSyAm7l3kLNaXW90TyN9gFS2pwfdseimErdc",
-        authDomain: "fail-21187.firebaseapp.com",
         databaseURL: "https://fail-21187-default-rtdb.firebaseio.com",
         projectId: "fail-21187",
         appId: "1:621043286513:web:dc826eaa4ddebb5cc14450"
     };
 
-    firebase.initializeApp(config);
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    firebase.auth().onAuthStateChanged(u => {
-        document.getElementById('auth').style.display = u ? 'none' : 'block';
-        document.getElementById('main').style.display = u ? 'block' : 'none';
+    // Загрузка данных из интернета в реальном времени
+    db.ref('cloud_matrix').on('value', (snap) => {
+        [1,2,3,4].forEach(n => document.getElementById('list'+n).innerHTML = '');
+        snap.forEach((child) => {
+            const val = child.val();
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <div class="item-header">
+                    <span>${val.f ? '📄' : '📌'} ${val.t}</span>
+                    <button class="delete-btn" onclick="del('${child.key}')">✕</button>
+                </div>
+                ${val.f ? `<a href="${val.f}" download="${val.t}" class="file-link">СКАЧАТЬ ФАЙЛ</a>` : ''}
+            `;
+            document.getElementById('list' + val.q).prepend(div);
+        });
     });
 
-    async function run(m) {
-        const email = document.getElementById('l').value + "@master.ru";
-        const pass = document.getElementById('p').value;
-        const msg = document.getElementById('err');
-        msg.innerText = "⏳ Проверка...";
-
-        try {
-            if(m === 'up') await firebase.auth().createUserWithEmailAndPassword(email, pass);
-            else await firebase.auth().signInWithEmailAndPassword(email, pass);
-        } catch (e) {
-            if (e.code === 'auth/api-key-not-valid') {
-                msg.innerHTML = "ОШИБКА: Нужно добавить домен в Firebase!<br>Инструкция выше 👆";
-            } else {
-                msg.innerText = "Ошибка: " + e.message;
-            }
-        }
+    // Функция добавления текста
+    async function add(q) {
+        const t = document.getElementById('in'+q).value;
+        if(!t) return;
+        await db.ref('cloud_matrix').push({ q, t });
+        document.getElementById('in'+q).value = '';
     }
+
+    // Функция загрузки файла в облако
+    function up(q) {
+        const file = document.getElementById('f'+q).files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            await db.ref('cloud_matrix').push({ q, t: file.name, f: e.target.result });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Удаление
+    function del(key) { if(confirm('Удалить из облака?')) db.ref('cloud_matrix/'+key).remove(); }
 </script>
 </body>
 </html>
