@@ -2,231 +2,181 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Зефирные Букеты — Нежность в каждом кусочке</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Matrix Pro Max</title>
     <style>
         :root {
-            --primary-pink: #f8bbd0;
-            --dark-pink: #e91e63;
-            --soft-white: #fff5f8;
-            --text-color: #4a4a4a;
+            --q1: #ff4d4d; --q2: #007bff; --q3: #ffc107; --q4: #28a745;
+            --bg: #121212; --card-bg: #1e1e1e; --input-bg: #2d2d2d;
         }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: white; margin: 0; padding: 10px; }
+        .container { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        
+        .card { background: var(--card-bg); border-radius: 12px; padding: 12px; border-left: 5px solid; }
+        .q1 { border-color: var(--q1); } .q2 { border-color: var(--q2); }
+        .q3 { border-color: var(--q3); } .q4 { border-color: var(--q4); }
+        
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        input[type="text"] { background: var(--input-bg); border: 1px solid #444; border-radius: 8px; padding: 10px; color: white; font-size: 16px; }
+        
+        .controls { display: flex; gap: 5px; }
+        .file-btn { flex: 1; background: #333; border-radius: 8px; padding: 10px; font-size: 0.75rem; text-align: center; border: 1px dashed #555; cursor: pointer; }
+        .add-btn { background: white; border: none; border-radius: 8px; width: 50px; font-weight: bold; font-size: 20px; }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--soft-white);
-            color: var(--text-color);
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
+        .task-list { list-style: none; padding: 0; margin-top: 10px; }
+        .task-item { background: var(--input-bg); margin-bottom: 8px; padding: 10px; border-radius: 8px; position: relative; }
+        .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .task-text { font-size: 0.95rem; color: #efefef; padding-right: 25px; }
+        
+        /* Стили для строки файла */
+        .file-row { 
+            display: flex; align-items: center; gap: 8px; 
+            background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 6px; margin-top: 5px;
         }
+        .file-info { flex: 1; font-size: 0.8rem; color: #4da3ff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        .file-actions { display: flex; gap: 12px; }
+        .icon-btn { background: none; border: none; padding: 4px; cursor: pointer; font-size: 1.1rem; filter: grayscale(1); transition: 0.2s; }
+        .icon-btn:active { transform: scale(1.2); filter: grayscale(0); }
 
-        header {
-            background: white;
-            padding: 40px 20px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3rem;
-            color: var(--dark-pink);
-            margin: 0;
-        }
-
-        .subtitle {
-            font-size: 1.1rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #888;
-            margin-bottom: 10px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        /* Галерея */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 40px;
-        }
-
-        .gallery-item {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .gallery-item:hover {
-            transform: translateY(-10px);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .item-info {
-            padding: 20px;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        /* Кнопки */
-        .btn-order {
-            display: inline-block;
-            background-color: var(--dark-pink);
-            color: white;
-            padding: 12px 30px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: background 0.3s ease;
-        }
-
-        .btn-order:hover {
-            background-color: #c2185b;
-        }
-
-        .whatsapp-float {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #25d366;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 1000;
-            text-decoration: none;
-        }
-
-        footer {
-            text-align: center;
-            padding: 60px 20px;
-            background: #fce4ec;
-            margin-top: 50px;
-        }
-
-        .contact-phone {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--dark-pink);
-            text-decoration: none;
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .gallery { grid-template-columns: 1fr; }
-            .gallery-item img { height: 350px; }
-        }
+        .del-btn { position: absolute; right: 8px; top: 8px; color: #555; background: none; border: none; font-size: 16px; }
+        
+        #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+        #modal img { max-width: 95%; max-height: 95%; }
     </style>
 </head>
 <body>
 
-<header>
-    <p class="subtitle">Букеты, которые можно съесть</p>
-    <h1>Зефирные Букеты</h1>
-</header>
+    <h2 style="text-align: center; color: #666; font-size: 1.2rem;">MATRIX ULTRA</h2>
 
-<div class="container">
-    <div style="text-align: center; margin-bottom: 40px;">
-        <h2>Наша галерея</h2>
-        <p>Натуральные ингредиенты и ручная работа</p>
+    <div class="container">
+        <div class="card q1">
+            <h3 style="color:var(--q1); margin:0 0 8px 0; font-size:0.8rem;">ВАЖНО / СРОЧНО</h3>
+            <div class="input-group">
+                <input type="text" id="in1" placeholder="Задача...">
+                <div class="controls">
+                    <label class="file-btn" id="lab1">📎 Файл<input type="file" id="f1" hidden onchange="updateLab(1)"></label>
+                    <button class="add-btn" onclick="addTask(1)">+</button>
+                </div>
+            </div>
+            <div id="list1" class="task-list"></div>
+        </div>
+        <div id="other-sections"></div>
     </div>
 
-    <div class="gallery">
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/GmWq7nh/eb2871a7-58e4-4425-a33c-8d723cc0b1b9.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+    <div id="modal" onclick="this.style.display='none'"><img id="modalImg"></div>
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/zTdpsk11/f69226f4-7e8b-479b-bcc1-983cc3677799.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+    <script>
+        // Генерация остальных секторов
+        const extraSectors = [
+            {id:2, t:'ВАЖНО / НЕСРОЧНО', c:'var(--q2)'},
+            {id:3, t:'НЕВАЖНО / СРОЧНО', c:'var(--q3)'},
+            {id:4, t:'НЕВАЖНО / НЕСРОЧНО', c:'var(--q4)'}
+        ];
+        extraSectors.forEach(s => {
+            document.getElementById('other-sections').innerHTML += `
+                <div class="card q${s.id}" style="margin-top:15px">
+                    <h3 style="color:${s.c}; margin:0 0 8px 0; font-size:0.8rem;">${s.t}</h3>
+                    <div class="input-group">
+                        <input type="text" id="in${s.id}" placeholder="Задача...">
+                        <div class="controls">
+                            <label class="file-btn" id="lab${s.id}">📎 Файл<input type="file" id="f${s.id}" hidden onchange="updateLab(${s.id})"></label>
+                            <button class="add-btn" onclick="addTask(${s.id})">+</button>
+                        </div>
+                    </div>
+                    <div id="list${s.id}" class="task-list"></div>
+                </div>`;
+        });
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/r2ykWnDB/6888f010-c294-41e1-87f0-34491829789b.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+        window.onload = () => {
+            for(let i=1; i<=4; i++) {
+                const saved = JSON.parse(localStorage.getItem('matrix_mpx_' + i) || '[]');
+                saved.forEach(t => render(i, t));
+            }
+        };
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/whh0hhRY/2eb3f37b-f791-4f7d-830b-152517d19318.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+        function updateLab(id) {
+            const f = document.getElementById('f' + id).files[0];
+            document.getElementById('lab' + id).innerText = f ? "✅ " + f.name.substring(0,5) : "📎 Файл";
+        }
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/TMWx6v2L/03358339-d53e-42e3-994a-155ed4ef3391.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+        async function addTask(q) {
+            const inpt = document.getElementById('in' + q);
+            const fInpt = document.getElementById('f' + q);
+            if(!inpt.value.trim()) return;
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/zW0YvWN0/a7cdc8f2-8e2d-4f2e-97e0-822aaa1d1d26.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+            let fData = null, fName = "файл", isImg = false;
+            if(fInpt.files[0]) {
+                fName = fInpt.files[0].name;
+                isImg = fInpt.files[0].type.startsWith('image/');
+                fData = await new Promise(r => {
+                    const rd = new FileReader(); rd.readAsDataURL(fInpt.files[0]);
+                    rd.onload = () => r(rd.result);
+                });
+            }
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/JRH2r2Dd/277f5925-d8b8-49ba-b96f-722fa54c62e5.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+            const task = { text: inpt.value, fData, fName, isImg };
+            render(q, task);
+            save(q);
+            inpt.value = ''; fInpt.value = ''; document.getElementById('lab' + q).innerText = "📎 Файл";
+        }
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/2DhBbC6/28f3745b-4409-448e-a2a8-c18a04c24dcf.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
+        function render(q, task) {
+            const list = document.getElementById('list' + q);
+            const div = document.createElement('div');
+            div.className = 'task-item';
+            
+            let fileHtml = '';
+            if(task.fData) {
+                fileHtml = `
+                <div class="file-row">
+                    <div class="file-info" onclick="${task.isImg ? `openFull('${task.fData}')` : ''}">
+                        ${task.isImg ? '🖼️' : '📄'} ${task.fName}
+                    </div>
+                    <div class="file-actions">
+                        <button class="icon-btn" onclick="downloadFile('${task.fData}', '${task.fName}')" title="Скачать">📥</button>
+                        <button class="icon-btn" onclick="shareTask('${task.text}')" title="Поделиться">📤</button>
+                    </div>
+                </div>`;
+            }
 
-        <div class="gallery-item">
-            <img src="https://i.ibb.co/j9Gz7rMd/eb82ff05-dfac-4e5c-bab5-7e550550b5e3.jpg" alt="Зефирный букет">
-            <div class="item-info">
-                <a href="https://wa.me/79894596849?text=Здравствуйте!%20Хочу%20заказать%20этот%20букет" class="btn-order">Заказать</a>
-            </div>
-        </div>
-    </div>
-</div>
+            div.innerHTML = `
+                <div class="task-header"><span class="task-text">${task.text}</span></div>
+                ${fileHtml}
+                <button class="del-btn" onclick="remove(this, ${q})">✕</button>
+            `;
+            list.appendChild(div);
+        }
 
-<footer>
-    <h3>Связаться с нами</h3>
-    <a href="https://wa.me/79894596849" class="contact-phone">+7 (989) 459-68-49</a>
-    <p>© 2026 Зефирные Букеты</p>
-</footer>
+        function openFull(src) {
+            document.getElementById('modalImg').src = src;
+            document.getElementById('modal').style.display = 'flex';
+        }
 
-<a href="https://wa.me/79894596849" class="whatsapp-float" target="_blank">
-    <svg width="30" height="30" fill="white" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.89 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.743-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-</a>
+        function downloadFile(data, name) {
+            const a = document.createElement('a'); a.href = data; a.download = name; a.click();
+        }
 
+        async function shareTask(txt) {
+            if (navigator.share) navigator.share({ text: txt }).catch(() => {});
+            else { alert("Скопировано!"); navigator.clipboard.writeText(txt); }
+        }
+
+        function remove(btn, q) { btn.parentElement.remove(); save(q); }
+
+        function save(q) {
+            const tasks = [];
+            document.querySelectorAll(`#list${q} .task-item`).forEach(el => {
+                const fInfo = el.querySelector('.file-info');
+                const fDl = el.querySelector('[onclick^="downloadFile"]');
+                tasks.push({
+                    text: el.querySelector('.task-text').innerText,
+                    fData: fDl ? fDl.getAttribute('onclick').split("'")[1] : null,
+                    fName: fInfo ? fInfo.innerText.split(' ').slice(1).join(' ') : null,
+                    isImg: fInfo && fInfo.innerText.includes('🖼️')
+                });
+            });
+            localStorage.setItem('matrix_mpx_' + q, JSON.stringify(tasks));
+        }
+    </script>
 </body>
 </html>
