@@ -3,56 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Private Cloud</title>
+    <title>Master Cloud Final</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
-        * { box-sizing: border-box; font-family: sans-serif; }
-        body { background: #121212; color: white; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        #auth-form { background: #1e1e1e; padding: 25px; border-radius: 20px; width: 100%; max-width: 320px; margin-top: 50px; text-align: center; border: 1px solid #333; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #444; border-radius: 10px; background: #2a2a2a; color: white; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        .login-btn { background: #ffffff; color: #000; }
-        .reg-link { background: none; color: #007bff; font-size: 13px; text-decoration: underline; margin-top: 15px; }
-        #app { display: none; width: 100%; max-width: 500px; }
-        .quadrant { background: #1e1e1e; padding: 15px; border-radius: 15px; margin-top: 15px; border-left: 5px solid #ff4d4d; }
-        .item { background: #2a2a2a; padding: 10px; margin-top: 8px; border-radius: 8px; position: relative; border: 1px solid #333; font-size: 14px; }
-        .del { position: absolute; right: 8px; top: 8px; color: #ff4d4d; background: none; border: none; cursor: pointer; font-weight: bold; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; font-weight: bold; }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .box { background: #111; padding: 30px; border-radius: 20px; width: 90%; max-width: 340px; text-align: center; border: 1px solid #333; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #444; background: #222; color: #fff; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #fff; color: #000; font-weight: bold; cursor: pointer; }
+        #err { color: #ff4d4d; font-size: 12px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div id="loader">⚙️ Синхронизация...</div>
-
-<div id="auth-form">
-    <h2 style="margin-top:0">Master Cloud</h2>
-    <input type="text" id="user-login" placeholder="Логин (напр: Gazik115)">
-    <input type="password" id="user-pass" placeholder="Пароль">
-    <button class="btn login-btn" onclick="go('login')">ВОЙТИ</button>
-    <button class="btn reg-link" onclick="go('reg')">Нет аккаунта? Создать</button>
+<div id="auth" class="box">
+    <h2>Master Cloud</h2>
+    <input type="text" id="l" placeholder="Логин">
+    <input type="password" id="p" placeholder="Пароль">
+    <button onclick="run('in')">ВОЙТИ</button>
+    <button onclick="run('up')" style="background:none; color:#777; font-size:12px; text-decoration:underline;">Регистрация</button>
+    <div id="err"></div>
 </div>
 
-<div id="app">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px;">
-        <b style="color: #007bff;">☁️ Твое Облако</b>
-        <button onclick="firebase.auth().signOut()" style="border:none; background:none; color:#ff4d4d; cursor:pointer; font-weight:bold;">Выход</button>
-    </div>
-
-    <div class="quadrant">
-        <h4 style="margin:0 0 10px 0; color: #ff4d4d;">🔥 СРОЧНО / ВАЖНО</h4>
-        <div style="display:flex; gap:5px;">
-            <input type="text" id="in1" placeholder="Новая запись..." style="margin:0">
-            <button class="login-btn" style="width:45px; margin:0; border-radius:10px;" onclick="add()">+</button>
-        </div>
-        <div id="list"></div>
-    </div>
+<div id="main" style="display:none; text-align:center;">
+    <h1>ДОСТУП ОТКРЫТ ✅</h1>
+    <button onclick="firebase.auth().signOut()">Выход</button>
 </div>
 
 <script>
-    // ДАННЫЕ С ТВОИХ СКРИНШОТОВ (ФИНАЛЬНЫЕ)
-    const firebaseConfig = {
+    const config = {
         apiKey: "AIzaSyAm7l3kLNaXW90TyN9gFS2pwfdseimErdc",
         authDomain: "fail-21187.firebaseapp.com",
         databaseURL: "https://fail-21187-default-rtdb.firebaseio.com",
@@ -60,61 +40,30 @@
         appId: "1:621043286513:web:dc826eaa4ddebb5cc14450"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+    firebase.initializeApp(config);
 
-    auth.onAuthStateChanged(user => {
-        document.getElementById('auth-form').style.display = user ? 'none' : 'block';
-        document.getElementById('app').style.display = user ? 'block' : 'none';
-        if(user) sync(user.uid);
+    firebase.auth().onAuthStateChanged(u => {
+        document.getElementById('auth').style.display = u ? 'none' : 'block';
+        document.getElementById('main').style.display = u ? 'block' : 'none';
     });
 
-    async function go(mode) {
-        let login = document.getElementById('user-login').value;
-        const pass = document.getElementById('user-pass').value;
-        if(!login || !pass) return alert("Заполни поля!");
-        
-        // Превращаем логин в почту автоматически
-        const email = login.includes('@') ? login : login + "@m.ru";
+    async function run(m) {
+        const email = document.getElementById('l').value + "@master.ru";
+        const pass = document.getElementById('p').value;
+        const msg = document.getElementById('err');
+        msg.innerText = "⏳ Проверка...";
 
         try {
-            if(mode === 'reg') {
-                await auth.createUserWithEmailAndPassword(email, pass);
-                alert("Аккаунт создан!");
+            if(m === 'up') await firebase.auth().createUserWithEmailAndPassword(email, pass);
+            else await firebase.auth().signInWithEmailAndPassword(email, pass);
+        } catch (e) {
+            if (e.code === 'auth/api-key-not-valid') {
+                msg.innerHTML = "ОШИБКА: Нужно добавить домен в Firebase!<br>Инструкция выше 👆";
             } else {
-                await auth.signInWithEmailAndPassword(email, pass);
+                msg.innerText = "Ошибка: " + e.message;
             }
-        } catch(e) { 
-            alert("Ошибка: " + e.message); 
-            console.error(e);
         }
-    }
-
-    function sync(uid) {
-        db.ref('users/' + uid).on('value', snap => {
-            const list = document.getElementById('list');
-            list.innerHTML = '';
-            snap.forEach(child => {
-                const val = child.val();
-                const div = document.createElement('div');
-                div.className = 'item';
-                div.innerHTML = `
-                    <span>📌 ${val.t}</span>
-                    <button class="del" onclick="db.ref('users/${uid}/${child.key}').remove()">✕</button>
-                `;
-                list.prepend(div);
-            });
-        });
-    }
-
-    async function add() {
-        const text = document.getElementById('in1').value;
-        if(!text) return;
-        await db.ref('users/' + auth.currentUser.uid).push({ t: text });
-        document.getElementById('in1').value = '';
     }
 </script>
 </body>
 </html>
-
