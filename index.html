@@ -3,68 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Simple Cloud</title>
+    <title>Master Private Cloud</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    
     <style>
-        * { box-sizing: border-box; font-family: sans-serif; }
-        body { background: #f0f2f5; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #f0f2f5; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Упрощенная форма входа */
-        #auth-form { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 350px; margin-top: 50px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 5px; }
-        .login-btn { background: #222; color: white; }
-        .reg-btn { background: none; color: #666; font-size: 14px; }
+        /* Экран входа */
+        #auth-form { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 320px; margin-top: 60px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .login-btn { background: #222; color: white; margin-top: 10px; }
+        .login-btn:active { transform: scale(0.98); }
+        .reg-link { background: none; color: #007bff; font-size: 13px; margin-top: 15px; text-decoration: underline; border: none; }
 
-        /* Интерфейс матрицы */
+        /* Основной интерфейс */
         #app { display: none; width: 100%; max-width: 800px; }
-        .matrix { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+        .matrix { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
         @media (min-width: 600px) { .matrix { grid-template-columns: 1fr 1fr; } }
-        .quadrant { background: white; padding: 15px; border-radius: 12px; border-top: 5px solid #333; }
-        .item { background: #f9f9f9; padding: 8px; margin-top: 8px; border-radius: 8px; position: relative; border: 1px solid #eee; }
-        .del { position: absolute; right: 5px; top: 5px; color: #ccc; border: none; background: none; cursor: pointer; }
-        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 100; align-items: center; justify-content: center; }
+        
+        .quadrant { background: white; padding: 15px; border-radius: 15px; border-top: 6px solid #333; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .item { background: #f9f9f9; padding: 12px; margin-top: 10px; border-radius: 10px; position: relative; border: 1px solid #eee; font-size: 14px; word-break: break-all; }
+        .del { position: absolute; right: 10px; top: 10px; color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 18px; padding: 0; }
+        
+        #loader { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); z-index: 100; align-items: center; justify-content: center; font-weight: bold; flex-direction: column; }
+        .file-link { display: inline-block; margin-top: 8px; color: #007bff; text-decoration: none; font-weight: bold; font-size: 12px; border: 1px solid #007bff; padding: 4px 8px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div id="loader">⏳ Секунду...</div>
+<div id="loader"><div>⚙️ Загрузка в облако...</div></div>
 
 <div id="auth-form">
-    <h3>Вход / Регистрация</h3>
-    <input type="text" id="email" placeholder="Логин (Email)">
-    <input type="password" id="pass" placeholder="Пароль">
+    <h2 style="margin: 0 0 15px 0;">Master Cloud</h2>
+    <input type="text" id="user-login" placeholder="Логин (напр. Gazik115)">
+    <input type="password" id="user-pass" placeholder="Пароль">
     <button class="btn login-btn" onclick="go('login')">ВОЙТИ</button>
-    <button class="btn reg-btn" onclick="go('reg')">Впервые здесь? Создать аккаунт</button>
+    <button class="btn reg-link" onclick="go('reg')">У меня нет аккаунта, создать</button>
 </div>
 
 <div id="app">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <b>Матрица Master</b>
-        <button onclick="firebase.auth().signOut()" style="border:none; background:none; color:red; cursor:pointer;">Выйти</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: white; border-radius: 12px; margin-bottom: 10px;">
+        <span id="display-user" style="font-weight: bold;">☁️ Облако</span>
+        <button onclick="firebase.auth().signOut()" style="border:none; background:none; color:#ff4d4d; cursor:pointer; font-weight:bold;">Выйти</button>
     </div>
 
     <div class="matrix">
-        <div class="quadrant" style="border-color: red;">
-            <h4>🔥 Срочно</h4>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="in1" placeholder="Текст..." style="margin:0">
-                <button onclick="document.getElementById('f1').click()">📎</button>
+        <div class="quadrant" style="border-color: #ff4d4d;">
+            <h4 style="margin:0 0 12px 0">🔥 СРОЧНО / ВАЖНО</h4>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="in1" placeholder="Дело..." style="margin:0">
+                <button style="border-radius:10px; border:1px solid #ddd; background:#eee; padding: 0 10px;" onclick="document.getElementById('f1').click()">📎</button>
                 <input type="file" id="f1" style="display:none" onchange="up(1)">
-                <button class="login-btn" style="width:40px; border-radius:8px;" onclick="add(1)">+</button>
+                <button class="btn login-btn" style="width:45px; margin:0; border-radius:10px;" onclick="add(1)">+</button>
             </div>
             <div id="l1"></div>
         </div>
 
-        <div class="quadrant" style="border-color: blue;">
-            <h4>📅 Важно</h4>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="in2" placeholder="Текст..." style="margin:0">
-                <button onclick="document.getElementById('f2').click()">📎</button>
+        <div class="quadrant" style="border-color: #007bff;">
+            <h4 style="margin:0 0 12px 0">📅 ВАЖНО / НЕ СРОЧНО</h4>
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="in2" placeholder="Заметка..." style="margin:0">
+                <button style="border-radius:10px; border:1px solid #ddd; background:#eee; padding: 0 10px;" onclick="document.getElementById('f2').click()">📎</button>
                 <input type="file" id="f2" style="display:none" onchange="up(2)">
-                <button class="login-btn" style="width:40px; border-radius:8px;" onclick="add(2)">+</button>
+                <button class="btn login-btn" style="width:45px; margin:0; border-radius:10px;" onclick="add(2)">+</button>
             </div>
             <div id="l2"></div>
         </div>
@@ -72,11 +77,13 @@
 </div>
 
 <script>
+    // КОНФИГУРАЦИЯ С ТВОИХ СКРИНШОТОВ
     const firebaseConfig = {
         apiKey: "AIzaSyAm7l3kLNaXW90TyN9gFS2pwfdseimErdc",
         authDomain: "fail-21187.firebaseapp.com",
         databaseURL: "https://fail-21187-default-rtdb.firebaseio.com",
         projectId: "fail-21187",
+        storageBucket: "fail-21187.appspot.com",
         appId: "1:621043286513:web:dc826eaa4ddebb5cc14450"
     };
 
@@ -84,56 +91,79 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
+    // Переключение экранов при входе/выходе
     auth.onAuthStateChanged(user => {
         document.getElementById('auth-form').style.display = user ? 'none' : 'block';
         document.getElementById('app').style.display = user ? 'block' : 'none';
-        if(user) load(user.uid);
+        if(user) {
+            document.getElementById('display-user').innerText = "Аккаунт: " + user.email.split('@')[0];
+            sync(user.uid);
+        }
     });
 
+    // Логика входа и регистрации
     async function go(mode) {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
+        let login = document.getElementById('user-login').value;
+        const pass = document.getElementById('user-pass').value;
+        if(!login || !pass) return alert("Заполни все поля!");
+        
+        // Автоматическая трансформация логина в email для Firebase
+        const email = login.includes('@') ? login : login + "@master.cloud";
+
         try {
-            if(mode === 'reg') await auth.createUserWithEmailAndPassword(e, p);
-            else await auth.signInWithEmailAndPassword(e, p);
-        } catch(err) { alert(err.message); }
+            if(mode === 'reg') {
+                await auth.createUserWithEmailAndPassword(email, pass);
+                alert("Успех! Теперь нажми 'Войти'");
+            } else {
+                await auth.signInWithEmailAndPassword(email, pass);
+            }
+        } catch(e) { alert("Ошибка: " + e.message); }
     }
 
-    function load(uid) {
+    // Синхронизация данных с базой
+    function sync(uid) {
         db.ref('users/' + uid).on('value', snap => {
             [1,2].forEach(i => document.getElementById('l'+i).innerHTML = '');
             snap.forEach(child => {
-                const item = child.val();
+                const val = child.val();
                 const div = document.createElement('div');
                 div.className = 'item';
                 div.innerHTML = `
-                    <div>${item.file ? '📄' : '📌'} ${item.text}</div>
+                    <div>${val.f ? '📄' : '📌'} <b>${val.t}</b></div>
                     <button class="del" onclick="db.ref('users/${uid}/${child.key}').remove()">✕</button>
-                    ${item.file ? `<a href="${item.file}" download="${item.text}" style="font-size:12px; color:blue;">Скачать</a>` : ''}
+                    ${val.f ? `<a href="${val.f}" download="${val.t}" class="file-link">СКАЧАТЬ ФАЙЛ</a>` : ''}
                 `;
-                document.getElementById('l'+item.q).prepend(div);
+                document.getElementById('l'+val.q).prepend(div);
             });
         });
     }
 
+    // Добавление текста
     async function add(q) {
-        const txt = document.getElementById('in'+q).value;
-        if(txt) {
-            await db.ref('users/' + auth.currentUser.uid).push({ q, text: txt });
-            document.getElementById('in'+q).value = '';
-        }
+        const text = document.getElementById('in'+q).value;
+        if(!text) return;
+        await db.ref('users/' + auth.currentUser.uid).push({ q, t: text });
+        document.getElementById('in'+q).value = '';
     }
 
+    // Загрузка файлов (Base64 - бесплатно)
     function up(q) {
         const file = document.getElementById('f'+q).files[0];
         if(!file) return;
+        
+        // Ограничение для бесплатной базы (~10MB)
+        if(file.size > 8 * 1024 * 1024) return alert("Файл слишком большой! Лимит 8МБ.");
+
         document.getElementById('loader').style.display = 'flex';
         const reader = new FileReader();
         reader.onload = async (e) => {
-            await db.ref('users/' + auth.currentUser.uid).push({
-                q, text: file.name, file: e.target.result
-            });
+            try {
+                await db.ref('users/' + auth.currentUser.uid).push({
+                    q, t: file.name, f: e.target.result
+                });
+            } catch(err) { alert("Ошибка загрузки!"); }
             document.getElementById('loader').style.display = 'none';
+            document.getElementById('f'+q).value = '';
         };
         reader.readAsDataURL(file);
     }
