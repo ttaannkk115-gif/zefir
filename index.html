@@ -2,16 +2,13 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Master Web Runner Pro</title>
     <style>
         * { box-sizing: border-box; }
         body {
             margin: 0; background: #0f172a; color: #f8fafc;
             font-family: 'Consolas', monospace; display: flex; flex-direction: column; height: 100vh;
-            overflow: hidden;
         }
         .header {
             padding: 12px; background: #1e293b; font-size: 13px;
@@ -40,7 +37,7 @@
         }
         .key-btn {
             background: #334155; color: #38bdf8; border: 1px solid #475569;
-            border-radius: 6px; padding: 10px 12px; font-size: 16px; font-weight: bold;
+            border-radius: 6px; padding: 8px 12px; font-size: 15px; font-weight: bold;
             white-space: nowrap; cursor: pointer; min-width: 45px;
         }
         .key-btn.attr { color: #facc15; font-size: 13px; }
@@ -48,9 +45,9 @@
         #code-editor {
             flex: 1; width: 100%; padding: 15px; background: #0f172a;
             color: #7dd3fc; border: none; outline: none; font-size: 16px;
-            resize: none; line-height: 1.5; caret-color: #38bdf8;
+            resize: none; line-height: 1.5;
         }
-        .toolbar { padding: 10px; background: #1e293b; display: flex; gap: 8px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+        .toolbar { padding: 10px; background: #1e293b; display: flex; gap: 8px; }
         button.action { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
         .run-btn { background: #0ea5e9; }
         .clear-btn { background: #ef4444; }
@@ -59,16 +56,16 @@
 <body>
 
     <div class="header">
-        <span>MASTER RUNNER PRO</span>
-        <span id="save-status" style="color: #38bdf8;">v2.5 (PWA Ready)</span>
+        <span>MASTER RUNNER</span>
+        <span id="save-status" style="color: #38bdf8;">v2.3</span>
     </div>
 
-    <div id="error-monitor">✓ Система готова</div>
+    <div id="error-monitor">✓ Код в порядке</div>
 
     <div class="system-bar">
         <button class="sys-btn" onclick="copyAll()">📋 Копировать</button>
         <button class="sys-btn" onclick="pasteAll()">📥 Вставить</button>
-        <button class="sys-btn" onclick="shareCode()">📤 Share</button>
+        <button class="sys-btn" onclick="shareCode()">📤 Поделиться</button>
     </div>
 
     <div class="quick-keys">
@@ -92,7 +89,7 @@
         const editor = document.getElementById('code-editor');
         const monitor = document.getElementById('error-monitor');
 
-        // Загрузка кода при старте
+        // ЗАГРУЗКА ПРИ СТАРТЕ
         window.onload = () => {
             const savedCode = localStorage.getItem('master_runner_code');
             if (savedCode) {
@@ -101,11 +98,63 @@
             }
         };
 
+        // СОХРАНЕНИЕ
         function saveToStorage() {
             localStorage.setItem('master_runner_code', editor.value);
         }
 
-        // Вставка на месте курсора
+        async function copyAll() {
+            await navigator.clipboard.writeText(editor.value);
+            alert("Скопировано!");
+        }
+
+        async function pasteAll() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    insertAtCursor(text, text.length);
+                    saveToStorage();
+                }
+            } catch (err) { alert("Разрешите доступ к буферу"); }
+        }
+
+        function shareCode() {
+            if (navigator.share) {
+                navigator.share({ title: 'Master Code', text: editor.value });
+            }
+        }
+
+        function validateCode() {
+            const text = editor.value;
+            let error = null;
+            const tagStack = [];
+            const voidTags = ['img', 'br', 'hr', 'input', 'meta', 'link'];
+            const tagRegex = /<(\/)?([a-zA-Z1-6]+)/g;
+            let match;
+
+            while ((match = tagRegex.exec(text)) !== null) {
+                const isClosing = match[1] === '/';
+                const tagName = match[2].toLowerCase();
+                if (voidTags.includes(tagName)) continue;
+                if (isClosing) {
+                    if (tagStack.length === 0 || tagStack[tagStack.length - 1] !== tagName) {
+                        error = `HTML: неверный </${tagName}>`;
+                        break;
+                    }
+                    tagStack.pop();
+                } else { tagStack.push(tagName); }
+            }
+            if (!error && tagStack.length > 0) error = `HTML: <${tagStack.pop()}> не закрыт`;
+
+            if (error) {
+                monitor.textContent = "⚠ " + error;
+                monitor.classList.add('has-error');
+            } else {
+                monitor.textContent = "✓ Код в порядке";
+                monitor.classList.remove('has-error');
+            }
+        }
+
         function insertAtCursor(text, moveCursor) {
             const start = editor.selectionStart;
             const end = editor.selectionEnd;
@@ -121,108 +170,55 @@
             else if (input === '=') insertAtCursor('=""', 2);
             else if (input === '{') insertAtCursor('}', 0);
             else insertAtCursor(input, input.length);
+            
+            const event = new InputEvent('input', { inputType: 'insertText', data: input.slice(-1) });
+            editor.dispatchEvent(event);
         }
 
-        // Поддержка Tab
-        editor.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                insertAtCursor("  ", 2);
+        editor.addEventListener('input', (e) => {
+            const pos = editor.selectionStart;
+            const text = editor.value;
+            validateCode();
+            saveToStorage(); // Сохраняем при каждом вводе
+
+            if (e.inputType === 'insertText' && e.data === '=') {
+                if (text[pos] !== '"') insertAtCursor('""', 1);
+            }
+            else if (e.inputType === 'insertText' && e.data === '{') insertAtCursor('}', 0);
+            else if (e.inputType === 'insertText' && e.data === '<') insertAtCursor('>', 0);
+            else if (e.inputType === 'insertText' && e.data === '/') {
+                if (text[pos - 2] === '<') {
+                    const beforeText = text.substring(0, pos - 2);
+                    const tagStack = [];
+                    const voidTags = ['img', 'br', 'hr', 'input', 'meta', 'link'];
+                    const tagRegex = /<(\/)?([a-zA-Z1-6]+)/g;
+                    let match;
+                    while ((match = tagRegex.exec(beforeText)) !== null) {
+                        const isClosing = match[1] === '/';
+                        const tagName = match[2].toLowerCase();
+                        if (voidTags.includes(tagName)) continue;
+                        if (isClosing) tagStack.pop(); else tagStack.push(tagName);
+                    }
+                    if (tagStack.length > 0) {
+                        const lastOpenTag = tagStack.pop();
+                        insertAtCursor(lastOpenTag, lastOpenTag.length);
+                    }
+                }
             }
         });
 
-        // Проверка ошибок
-        function validateCode() {
-            const text = editor.value;
-            let error = null;
-            const tagStack = [];
-            const voidTags = ['img', 'br', 'hr', 'input', 'meta', 'link'];
-            const tagRegex = /<(\/)?([a-zA-Z1-6]+)/g;
-            let match;
-
-            while ((match = tagRegex.exec(text)) !== null) {
-                const isClosing = match[1] === '/';
-                const tagName = match[2].toLowerCase();
-                if (voidTags.includes(tagName)) continue;
-                if (isClosing) {
-                    if (tagStack.length === 0 || tagStack[tagStack.length - 1] !== tagName) {
-                        error = `Неверный </${tagName}>`; break;
-                    }
-                    tagStack.pop();
-                } else { tagStack.push(tagName); }
-            }
-            if (!error && tagStack.length > 0) error = `<${tagStack.pop()}> не закрыт`;
-
-            if (error) {
-                monitor.textContent = "⚠ " + error;
-                monitor.classList.add('has-error');
-            } else {
-                monitor.textContent = "✓ Код в порядке";
-                monitor.classList.remove('has-error');
-            }
+        function clearEditor() { 
+            if (confirm("Очистить всё?")) { 
+                editor.value = ''; 
+                localStorage.removeItem('master_runner_code'); 
+                validateCode(); 
+                editor.focus(); 
+            } 
         }
 
-        editor.addEventListener('input', () => { validateCode(); saveToStorage(); });
-
-        async function copyAll() {
-            await navigator.clipboard.writeText(editor.value);
-            alert("Скопировано!");
-        }
-
-        async function pasteAll() {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (text) insertAtCursor(text, text.length);
-            } catch (err) { alert("Разрешите доступ к буферу"); }
-        }
-
-        function clearEditor() {
-            if (confirm("Очистить всё?")) {
-                editor.value = '';
-                localStorage.removeItem('master_runner_code');
-                validateCode();
-            }
-        }
-
-        function shareCode() {
-            if (navigator.share) {
-                navigator.share({ title: 'Master Code', text: editor.value });
-            }
-        }
-
-        // ГЛАВНАЯ ФУНКЦИЯ: Позволяет добавить на экран "Домой"
         function openCode() {
-            let userCode = editor.value;
-            
-            // Если в коде нет HEAD, добавляем его для корректной работы PWA на iOS
-            if (!userCode.includes('<head>')) {
-                userCode = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Master App</title>
-    <style>
-        body { margin: 0; font-family: sans-serif; background: white; padding-top: env(safe-area-inset-top); }
-        #back-btn { position: fixed; bottom: 20px; right: 20px; width: 44px; height: 44px; 
-                   background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; 
-                   font-size: 20px; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-    </style>
-</head>
-<body>
-    ${userCode}
-    <button id="back-btn" onclick="location.reload()">✕</button>
-</body>
-</html>`;
-            }
-
-            // Перезаписываем текущую страницу, чтобы Safari активировал кнопку "На экран Домой"
-            document.open();
-            document.write(userCode);
-            document.close();
+            const blob = new Blob([editor.value], { type: 'text/html' });
+            window.open(URL.createObjectURL(blob), '_blank');
         }
     </script>
 </body>
