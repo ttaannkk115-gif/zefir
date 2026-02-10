@@ -3,96 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Screen Share App</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <title>Master Web Runner</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #121212; color: white; padding: 20px; }
-        video { width: 100%; max-width: 800px; border: 2px solid #3498db; border-radius: 10px; margin-top: 20px; background: #000; }
-        .controls { margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
-        button { padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
-        .btn-share { background: #2ecc71; color: white; }
-        .btn-connect { background: #3498db; color: white; }
-        input { padding: 10px; border-radius: 5px; border: 1px solid #ccc; width: 250px; }
-        .status { color: #f1c40f; font-size: 0.9em; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: 'Consolas', monospace;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            padding: 15px;
+            background: #1e293b;
+            font-size: 14px;
+            border-bottom: 2px solid #38bdf8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #code-editor {
+            flex: 1;
+            width: 100%;
+            padding: 15px;
+            background: #0f172a;
+            color: #7dd3fc;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            resize: none;
+            line-height: 1.5;
+        }
+
+        .toolbar {
+            padding: 15px;
+            background: #1e293b;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .run-btn { background: #0ea5e9; box-shadow: 0 4px 0 #0369a1; }
+        .run-btn:active { transform: translateY(4px); box-shadow: none; }
+        
+        .clear-btn { background: #334155; }
+
+        .hint {
+            padding: 10px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            text-align: center;
+            background: #1e293b;
+        }
     </style>
 </head>
 <body>
 
-    <h2>Трансляция экрана</h2>
-    
-    <div class="controls">
-        <p>Ваш ID: <strong id="my-id">...</strong></p>
-        <p class="status" id="status">Ожидание подключения...</p>
-        
-        <hr style="width:100%; border: 0.5px solid #333;">
-        
-        <input type="text" id="remote-id" placeholder="Введите ID телефона">
-        <button class="btn-connect" onclick="connectToPeer()">Смотреть трансляцию</button>
-        
-        <button class="btn-share" onclick="startScreenShare()">Начать раздачу экрана</button>
+    <div class="header">
+        <span>RUNNER.HTML</span>
+        <span style="color: #38bdf8;">v1.0</span>
     </div>
 
-    <video id="remote-video" autoplay playsinline></video>
+    <textarea id="code-editor" spellcheck="false" placeholder="Напиши HTML/CSS/JS код сюда...">
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { 
+      background: linear-gradient(45deg, #ff007b, #38bdf8); 
+      height: 100vh; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      color: white;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>Код запущен в браузере!</h1>
+  <script>
+    alert('Привет, Master!');
+  </script>
+</body>
+</html></textarea>
+
+    <div class="hint">Нажми "ЗАПУСТИТЬ", чтобы открыть страницу в новой вкладке</div>
+
+    <div class="toolbar">
+        <button class="clear-btn" onclick="document.getElementById('code-editor').value = ''">Очистить</button>
+        <button class="run-btn" onclick="openCode()">ЗАПУСТИТЬ</button>
+    </div>
 
     <script>
-        const peer = new Peer(); // Создаем объект Peer
-        let localStream;
-
-        // Показываем ваш ID при инициализации
-        peer.on('open', (id) => {
-            document.getElementById('my-id').innerText = id;
-            document.getElementById('status').innerText = "Готов к работе";
-        });
-
-        // Обработка входящего звонка (получение видео)
-        peer.on('call', (call) => {
-            document.getElementById('status').innerText = "Входящий поток...";
-            call.answer(); // Отвечаем без своего видео
-            call.on('stream', (remoteStream) => {
-                const video = document.getElementById('remote-video');
-                video.srcObject = remoteStream;
-            });
-        });
-
-        // Функция захвата экрана (для Телефона)
-        async function startScreenShare() {
-            try {
-                // Запрос на захват экрана
-                localStream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { cursor: "always" },
-                    audio: true
-                });
-                document.getElementById('status').innerText = "Экран захвачен. Ожидайте подключения или введите ID на втором устройстве.";
-                
-                // Если экран закрыт пользователем
-                localStream.getVideoTracks()[0].onended = () => {
-                    alert("Трансляция остановлена");
-                };
-            } catch (err) {
-                console.error("Ошибка захвата: " + err);
-                alert("Ошибка: Не удалось захватить экран. Убедитесь, что используете HTTPS или localhost.");
+        function openCode() {
+            const code = document.getElementById('code-editor').value;
+            
+            if (!code.trim()) {
+                alert("Сначала напиши код!");
+                return;
             }
-        }
 
-        // Функция подключения (для Приемника)
-        function connectToPeer() {
-            const remoteId = document.getElementById('remote-id').value;
-            if (!remoteId) return alert("Введите ID!");
-
-            document.getElementById('status').innerText = "Подключение к " + remoteId + "...";
+            // Создаем Blob (объект) из текста кода
+            const blob = new Blob([code], { type: 'text/html' });
             
-            // В WebRTC для трансляции "нажатие кнопки" должно быть на стороне раздающего, 
-            // но PeerJS позволяет инициировать соединение.
-            // Примечание: В данной логике раздающий должен сначала нажать 'Начать раздачу', 
-            // а потом принимающий вводит его ID и нажимает 'Смотреть'.
+            // Генерируем временную ссылку на этот объект
+            const pageUrl = URL.createObjectURL(blob);
             
-            // Для упрощения: мы "звоним" и передаем свой пустой поток, чтобы получить поток в ответ
-            const call = peer.call(remoteId, localStream);
-            call.on('stream', (remoteStream) => {
-                const video = document.getElementById('remote-video');
-                video.srcObject = remoteStream;
-                document.getElementById('status').innerText = "Трансляция активна";
-            });
+            // Открываем эту ссылку в новой вкладке браузера
+            window.open(pageUrl, '_blank');
+            
+            // Важно: на некоторых мобильных браузерах window.open 
+            // может блокироваться, если вызван не через прямой клик.
+            // Здесь он сработает, так как привязан к кнопке.
         }
     </script>
 </body>
