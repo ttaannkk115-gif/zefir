@@ -3,133 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Web Runner</title>
+    <title>Master Web Runner Pro</title>
     <style>
         * { box-sizing: border-box; }
         body {
-            margin: 0;
-            background: #0f172a;
-            color: #f8fafc;
-            font-family: 'Consolas', monospace;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+            margin: 0; background: #0f172a; color: #f8fafc;
+            font-family: 'Consolas', monospace; display: flex; flex-direction: column; height: 100vh;
         }
-
         .header {
-            padding: 15px;
-            background: #1e293b;
-            font-size: 14px;
-            border-bottom: 2px solid #38bdf8;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 12px; background: #1e293b; font-size: 13px;
+            border-bottom: 2px solid #38bdf8; display: flex;
+            justify-content: space-between; align-items: center;
         }
+        #error-monitor {
+            padding: 8px 15px; font-size: 12px; background: #1e293b;
+            color: #10b981; border-bottom: 1px solid #334155; min-height: 32px;
+        }
+        #error-monitor.has-error { color: #ef4444; background: #450a0a; }
+
+        .system-bar {
+            display: flex; background: #1e293b; padding: 5px 10px; gap: 8px;
+            border-bottom: 1px solid #334155;
+        }
+        .sys-btn {
+            background: #475569; color: white; border: none; border-radius: 4px;
+            padding: 6px 10px; font-size: 11px; cursor: pointer; flex: 1;
+        }
+        .sys-btn:active { background: #38bdf8; }
+
+        .quick-keys {
+            display: flex; background: #1e293b; padding: 5px; gap: 6px;
+            border-bottom: 1px solid #334155; overflow-x: auto;
+        }
+        .key-btn {
+            background: #334155; color: #38bdf8; border: 1px solid #475569;
+            border-radius: 6px; padding: 8px 12px; font-size: 15px; font-weight: bold;
+            white-space: nowrap; cursor: pointer; min-width: 45px;
+        }
+        .key-btn.attr { color: #facc15; font-size: 13px; }
 
         #code-editor {
-            flex: 1;
-            width: 100%;
-            padding: 15px;
-            background: #0f172a;
-            color: #7dd3fc;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            resize: none;
-            line-height: 1.5;
+            flex: 1; width: 100%; padding: 15px; background: #0f172a;
+            color: #7dd3fc; border: none; outline: none; font-size: 16px;
+            resize: none; line-height: 1.5;
         }
-
-        .toolbar {
-            padding: 15px;
-            background: #1e293b;
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: bold;
-            color: white;
-            transition: 0.2s;
-        }
-
-        .run-btn { background: #0ea5e9; box-shadow: 0 4px 0 #0369a1; }
-        .run-btn:active { transform: translateY(4px); box-shadow: none; }
-        
-        .clear-btn { background: #334155; }
-
-        .hint {
-            padding: 10px;
-            font-size: 0.75rem;
-            color: #94a3b8;
-            text-align: center;
-            background: #1e293b;
-        }
+        .toolbar { padding: 10px; background: #1e293b; display: flex; gap: 8px; }
+        button.action { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; }
+        .run-btn { background: #0ea5e9; }
+        .clear-btn { background: #ef4444; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <span>RUNNER.HTML</span>
-        <span style="color: #38bdf8;">v1.0</span>
+        <span>MASTER RUNNER</span>
+        <span id="save-status" style="color: #38bdf8;">v2.3</span>
     </div>
 
-    <textarea id="code-editor" spellcheck="false" placeholder="Напиши HTML/CSS/JS код сюда...">
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { 
-      background: linear-gradient(45deg, #ff007b, #38bdf8); 
-      height: 100vh; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center;
-      color: white;
-      font-family: sans-serif;
-    }
-  </style>
-</head>
-<body>
-  <h1>Код запущен в браузере!</h1>
-  <script>
-    alert('Привет, Master!');
-  </script>
-</body>
-</html></textarea>
+    <div id="error-monitor">✓ Код в порядке</div>
 
-    <div class="hint">Нажми "ЗАПУСТИТЬ", чтобы открыть страницу в новой вкладке</div>
+    <div class="system-bar">
+        <button class="sys-btn" onclick="copyAll()">📋 Копировать</button>
+        <button class="sys-btn" onclick="pasteAll()">📥 Вставить</button>
+        <button class="sys-btn" onclick="shareCode()">📤 Поделиться</button>
+    </div>
+
+    <div class="quick-keys">
+        <button class="key-btn" onclick="quickInsert('<')">&lt;</button>
+        <button class="key-btn" onclick="quickInsert('/')">/</button>
+        <button class="key-btn" onclick="quickInsert('=')">=</button>
+        <button class="key-btn" onclick="quickInsert('{')">{</button>
+        <button class="key-btn" onclick="quickInsert('}')">}</button>
+        <button class="key-btn attr" onclick="quickInsert('class=')">class</button>
+        <button class="key-btn attr" onclick="quickInsert('style=')">style</button>
+    </div>
+
+    <textarea id="code-editor" spellcheck="false" placeholder="Начни писать код..."></textarea>
 
     <div class="toolbar">
-        <button class="clear-btn" onclick="document.getElementById('code-editor').value = ''">Очистить</button>
-        <button class="run-btn" onclick="openCode()">ЗАПУСТИТЬ</button>
+        <button class="action clear-btn" onclick="clearEditor()">Очистить</button>
+        <button class="action run-btn" onclick="openCode()">ЗАПУСТИТЬ</button>
     </div>
 
     <script>
-        function openCode() {
-            const code = document.getElementById('code-editor').value;
-            
-            if (!code.trim()) {
-                alert("Сначала напиши код!");
-                return;
-            }
+        const editor = document.getElementById('code-editor');
+        const monitor = document.getElementById('error-monitor');
 
-            // Создаем Blob (объект) из текста кода
-            const blob = new Blob([code], { type: 'text/html' });
+        // ЗАГРУЗКА ПРИ СТАРТЕ
+        window.onload = () => {
+            const savedCode = localStorage.getItem('master_runner_code');
+            if (savedCode) {
+                editor.value = savedCode;
+                validateCode();
+            }
+        };
+
+        // СОХРАНЕНИЕ
+        function saveToStorage() {
+            localStorage.setItem('master_runner_code', editor.value);
+        }
+
+        async function copyAll() {
+            await navigator.clipboard.writeText(editor.value);
+            alert("Скопировано!");
+        }
+
+        async function pasteAll() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    insertAtCursor(text, text.length);
+                    saveToStorage();
+                }
+            } catch (err) { alert("Разрешите доступ к буферу"); }
+        }
+
+        function shareCode() {
+            if (navigator.share) {
+                navigator.share({ title: 'Master Code', text: editor.value });
+            }
+        }
+
+        function validateCode() {
+            const text = editor.value;
+            let error = null;
+            const tagStack = [];
+            const voidTags = ['img', 'br', 'hr', 'input', 'meta', 'link'];
+            const tagRegex = /<(\/)?([a-zA-Z1-6]+)/g;
+            let match;
+
+            while ((match = tagRegex.exec(text)) !== null) {
+                const isClosing = match[1] === '/';
+                const tagName = match[2].toLowerCase();
+                if (voidTags.includes(tagName)) continue;
+                if (isClosing) {
+                    if (tagStack.length === 0 || tagStack[tagStack.length - 1] !== tagName) {
+                        error = `HTML: неверный </${tagName}>`;
+                        break;
+                    }
+                    tagStack.pop();
+                } else { tagStack.push(tagName); }
+            }
+            if (!error && tagStack.length > 0) error = `HTML: <${tagStack.pop()}> не закрыт`;
+
+            if (error) {
+                monitor.textContent = "⚠ " + error;
+                monitor.classList.add('has-error');
+            } else {
+                monitor.textContent = "✓ Код в порядке";
+                monitor.classList.remove('has-error');
+            }
+        }
+
+        function insertAtCursor(text, moveCursor) {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.value = editor.value.substring(0, start) + text + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + moveCursor;
+            validateCode();
+            saveToStorage();
+        }
+
+        function quickInsert(input) {
+            editor.focus();
+            if (input.endsWith('=')) insertAtCursor(input + '""', input.length + 1);
+            else if (input === '=') insertAtCursor('=""', 2);
+            else if (input === '{') insertAtCursor('}', 0);
+            else insertAtCursor(input, input.length);
             
-            // Генерируем временную ссылку на этот объект
-            const pageUrl = URL.createObjectURL(blob);
-            
-            // Открываем эту ссылку в новой вкладке браузера
-            window.open(pageUrl, '_blank');
-            
-            // Важно: на некоторых мобильных браузерах window.open 
-            // может блокироваться, если вызван не через прямой клик.
-            // Здесь он сработает, так как привязан к кнопке.
+            const event = new InputEvent('input', { inputType: 'insertText', data: input.slice(-1) });
+            editor.dispatchEvent(event);
+        }
+
+        editor.addEventListener('input', (e) => {
+            const pos = editor.selectionStart;
+            const text = editor.value;
+            validateCode();
+            saveToStorage(); // Сохраняем при каждом вводе
+
+            if (e.inputType === 'insertText' && e.data === '=') {
+                if (text[pos] !== '"') insertAtCursor('""', 1);
+            }
+            else if (e.inputType === 'insertText' && e.data === '{') insertAtCursor('}', 0);
+            else if (e.inputType === 'insertText' && e.data === '<') insertAtCursor('>', 0);
+            else if (e.inputType === 'insertText' && e.data === '/') {
+                if (text[pos - 2] === '<') {
+                    const beforeText = text.substring(0, pos - 2);
+                    const tagStack = [];
+                    const voidTags = ['img', 'br', 'hr', 'input', 'meta', 'link'];
+                    const tagRegex = /<(\/)?([a-zA-Z1-6]+)/g;
+                    let match;
+                    while ((match = tagRegex.exec(beforeText)) !== null) {
+                        const isClosing = match[1] === '/';
+                        const tagName = match[2].toLowerCase();
+                        if (voidTags.includes(tagName)) continue;
+                        if (isClosing) tagStack.pop(); else tagStack.push(tagName);
+                    }
+                    if (tagStack.length > 0) {
+                        const lastOpenTag = tagStack.pop();
+                        insertAtCursor(lastOpenTag, lastOpenTag.length);
+                    }
+                }
+            }
+        });
+
+        function clearEditor() { 
+            if (confirm("Очистить всё?")) { 
+                editor.value = ''; 
+                localStorage.removeItem('master_runner_code'); 
+                validateCode(); 
+                editor.focus(); 
+            } 
+        }
+
+        function openCode() {
+            const blob = new Blob([editor.value], { type: 'text/html' });
+            window.open(URL.createObjectURL(blob), '_blank');
         }
     </script>
 </body>
