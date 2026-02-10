@@ -2,131 +2,98 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Master Eisenhower Cloud</title>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Share App</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; flex-direction: column; align-items: center; padding: 10px; margin: 0; }
-        .matrix { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; max-width: 900px; }
-        @media (min-width: 768px) { .matrix { grid-template-columns: 1fr 1fr; } }
-        .quadrant { padding: 15px; border-radius: 12px; display: flex; flex-direction: column; min-height: 200px; background: #1e1e1e; border-top: 5px solid; }
-        .q1 { border-color: #ff4d4d; } .q2 { border-color: #007bff; }
-        .q3 { border-color: #ffc107; } .q4 { border-color: #28a745; }
-        .input-group { display: flex; gap: 5px; margin-bottom: 10px; }
-        input[type="text"] { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: white; outline: none; }
-        .btn { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; padding: 10px; }
-        .add-btn { background: #fff; color: #000; }
-        .item { background: #2a2a2a; margin-bottom: 8px; padding: 10px; border-radius: 8px; border: 1px solid #333; }
-        .item-header { display: flex; justify-content: space-between; align-items: center; }
-        .delete-btn { color: #ff4d4d; background: none; border: none; cursor: pointer; font-size: 18px; }
-        .file-link { display: inline-block; color: #007bff; text-decoration: none; margin-top: 5px; font-size: 0.9rem; font-weight: bold; }
-        #status { font-size: 12px; color: #00ff00; margin-bottom: 10px; }
+        body { font-family: sans-serif; text-align: center; background: #121212; color: white; padding: 20px; }
+        video { width: 100%; max-width: 800px; border: 2px solid #3498db; border-radius: 10px; margin-top: 20px; background: #000; }
+        .controls { margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+        button { padding: 10px 20px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
+        .btn-share { background: #2ecc71; color: white; }
+        .btn-connect { background: #3498db; color: white; }
+        input { padding: 10px; border-radius: 5px; border: 1px solid #ccc; width: 250px; }
+        .status { color: #f1c40f; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
-    <h2 style="margin: 10px 0;">☁️ Master Eisenhower Cloud</h2>
-    <div id="status">● Облако онлайн (Без пароля)</div>
-
-    <div class="matrix">
-        <div class="quadrant q1">
-            <h3 style="color:#ff4d4d; margin:0 0 10px 0;">🔥 Срочно / Важно</h3>
-            <div class="input-group">
-                <input type="text" id="in1" placeholder="Заметка или файл...">
-                <button class="btn" onclick="document.getElementById('f1').click()">📎</button>
-                <input type="file" id="f1" style="display:none" onchange="up(1)">
-                <button class="btn add-btn" onclick="add(1)">+</button>
-            </div>
-            <div id="list1"></div>
-        </div>
-
-        <div class="quadrant q2">
-            <h3 style="color:#007bff; margin:0 0 10px 0;">📅 Важно / Несрочно</h3>
-            <div class="input-group">
-                <input type="text" id="in2" placeholder="Заметка...">
-                <button class="btn" onclick="document.getElementById('f2').click()">📎</button>
-                <input type="file" id="f2" style="display:none" onchange="up(2)">
-                <button class="btn add-btn" onclick="add(2)">+</button>
-            </div>
-            <div id="list2"></div>
-        </div>
-
-        <div class="quadrant q3">
-            <h3 style="color:#ffc107; margin:0 0 10px 0;">⚡ Срочно / Неважно</h3>
-            <div class="input-group">
-                <input type="text" id="in3" placeholder="Заметка...">
-                <button class="btn" onclick="document.getElementById('f3').click()">📎</button>
-                <input type="file" id="f3" style="display:none" onchange="up(3)">
-                <button class="btn add-btn" onclick="add(3)">+</button>
-            </div>
-            <div id="list3"></div>
-        </div>
-
-        <div class="quadrant q4">
-            <h3 style="color:#28a745; margin:0 0 10px 0;">🌱 Неважно / Несрочно</h3>
-            <div class="input-group">
-                <input type="text" id="in4" placeholder="Заметка...">
-                <button class="btn" onclick="document.getElementById('f4').click()">📎</button>
-                <input type="file" id="f4" style="display:none" onchange="up(4)">
-                <button class="btn add-btn" onclick="add(4)">+</button>
-            </div>
-            <div id="list4"></div>
-        </div>
+    <h2>Трансляция экрана</h2>
+    
+    <div class="controls">
+        <p>Ваш ID: <strong id="my-id">...</strong></p>
+        <p class="status" id="status">Ожидание подключения...</p>
+        
+        <hr style="width:100%; border: 0.5px solid #333;">
+        
+        <input type="text" id="remote-id" placeholder="Введите ID телефона">
+        <button class="btn-connect" onclick="connectToPeer()">Смотреть трансляцию</button>
+        
+        <button class="btn-share" onclick="startScreenShare()">Начать раздачу экрана</button>
     </div>
 
-<script>
-    // Твои настройки Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyAm7l3kLNaXW90TyN9gFS2pwfdseimErdc",
-        databaseURL: "https://fail-21187-default-rtdb.firebaseio.com",
-        projectId: "fail-21187",
-        appId: "1:621043286513:web:dc826eaa4ddebb5cc14450"
-    };
+    <video id="remote-video" autoplay playsinline></video>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    <script>
+        const peer = new Peer(); // Создаем объект Peer
+        let localStream;
 
-    // Загрузка данных из интернета в реальном времени
-    db.ref('cloud_matrix').on('value', (snap) => {
-        [1,2,3,4].forEach(n => document.getElementById('list'+n).innerHTML = '');
-        snap.forEach((child) => {
-            const val = child.val();
-            const div = document.createElement('div');
-            div.className = 'item';
-            div.innerHTML = `
-                <div class="item-header">
-                    <span>${val.f ? '📄' : '📌'} ${val.t}</span>
-                    <button class="delete-btn" onclick="del('${child.key}')">✕</button>
-                </div>
-                ${val.f ? `<a href="${val.f}" download="${val.t}" class="file-link">СКАЧАТЬ ФАЙЛ</a>` : ''}
-            `;
-            document.getElementById('list' + val.q).prepend(div);
+        // Показываем ваш ID при инициализации
+        peer.on('open', (id) => {
+            document.getElementById('my-id').innerText = id;
+            document.getElementById('status').innerText = "Готов к работе";
         });
-    });
 
-    // Функция добавления текста
-    async function add(q) {
-        const t = document.getElementById('in'+q).value;
-        if(!t) return;
-        await db.ref('cloud_matrix').push({ q, t });
-        document.getElementById('in'+q).value = '';
-    }
+        // Обработка входящего звонка (получение видео)
+        peer.on('call', (call) => {
+            document.getElementById('status').innerText = "Входящий поток...";
+            call.answer(); // Отвечаем без своего видео
+            call.on('stream', (remoteStream) => {
+                const video = document.getElementById('remote-video');
+                video.srcObject = remoteStream;
+            });
+        });
 
-    // Функция загрузки файла в облако
-    function up(q) {
-        const file = document.getElementById('f'+q).files[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            await db.ref('cloud_matrix').push({ q, t: file.name, f: e.target.result });
-        };
-        reader.readAsDataURL(file);
-    }
+        // Функция захвата экрана (для Телефона)
+        async function startScreenShare() {
+            try {
+                // Запрос на захват экрана
+                localStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { cursor: "always" },
+                    audio: true
+                });
+                document.getElementById('status').innerText = "Экран захвачен. Ожидайте подключения или введите ID на втором устройстве.";
+                
+                // Если экран закрыт пользователем
+                localStream.getVideoTracks()[0].onended = () => {
+                    alert("Трансляция остановлена");
+                };
+            } catch (err) {
+                console.error("Ошибка захвата: " + err);
+                alert("Ошибка: Не удалось захватить экран. Убедитесь, что используете HTTPS или localhost.");
+            }
+        }
 
-    // Удаление
-    function del(key) { if(confirm('Удалить из облака?')) db.ref('cloud_matrix/'+key).remove(); }
-</script>
+        // Функция подключения (для Приемника)
+        function connectToPeer() {
+            const remoteId = document.getElementById('remote-id').value;
+            if (!remoteId) return alert("Введите ID!");
+
+            document.getElementById('status').innerText = "Подключение к " + remoteId + "...";
+            
+            // В WebRTC для трансляции "нажатие кнопки" должно быть на стороне раздающего, 
+            // но PeerJS позволяет инициировать соединение.
+            // Примечание: В данной логике раздающий должен сначала нажать 'Начать раздачу', 
+            // а потом принимающий вводит его ID и нажимает 'Смотреть'.
+            
+            // Для упрощения: мы "звоним" и передаем свой пустой поток, чтобы получить поток в ответ
+            const call = peer.call(remoteId, localStream);
+            call.on('stream', (remoteStream) => {
+                const video = document.getElementById('remote-video');
+                video.srcObject = remoteStream;
+                document.getElementById('status').innerText = "Трансляция активна";
+            });
+        }
+    </script>
 </body>
 </html>
